@@ -3,20 +3,20 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request; 
+use Illuminate\Http\Request;
 use Auth;
 use App\Models\User;
 use App\Models\Category;
 use App\Models\Brand;
 use App\Models\Slider;
 use App\Models\Product;
-use App\Models\MultiImg; 
+use App\Models\MultiImg;
 use Illuminate\Support\Facades\Hash;
 use App\Models\BlogPost;
 
 use App\Models\SubCategory;
 use App\Models\SubSubCategory;
- 
+
 class IndexController extends Controller
 {
     public function index(){
@@ -32,18 +32,15 @@ class IndexController extends Controller
 
     	$special_deals = Product::where('special_deals',1)->orderBy('id','DESC')->limit(3)->get();
 
-    	$skip_category_0 = Category::skip(0)->first();
-    	$skip_product_0 = Product::where('status',1)->where('category_id',$skip_category_0->id)->orderBy('id','DESC')->get();
+    	$skip_category_0    = Category::skip(0)->first();
+    	$skip_product_0     = Product::where('status',1)->where('category_id',$skip_category_0->id)->orderBy('id','DESC')->get();
 
     	$skip_category_1 = Category::skip(1)->first();
     	$skip_product_1 = Product::where('status',1)->where('category_id',$skip_category_1->id)->orderBy('id','DESC')->get();
 
-    	$skip_brand_1 = Brand::skip(1)->first();
+    	$skip_brand_1 = Brand::skip(0)->first();
     	$skip_brand_product_1 = Product::where('status',1)->where('brand_id',$skip_brand_1->id)->orderBy('id','DESC')->get();
 
-
-    	// return $skip_category->id;
-    	// die();
 
     	return view('frontend.index',compact('categories','sliders','products','featured','hot_deals','special_offer','special_deals','skip_category_0','skip_product_0','skip_category_1','skip_product_1','skip_brand_1','skip_brand_product_1','blogpost'));
 
@@ -69,7 +66,7 @@ class IndexController extends Controller
 		$data->name = $request->name;
 		$data->email = $request->email;
 		$data->phone = $request->phone;
- 
+
 
 		if ($request->file('profile_photo_path')) {
 			$file = $request->file('profile_photo_path');
@@ -87,7 +84,7 @@ class IndexController extends Controller
 
 		return redirect()->route('dashboard')->with($notification);
 
-    } // end method 
+    } // end method
 
 
     public function UserChangePassword(){
@@ -95,7 +92,7 @@ class IndexController extends Controller
     	$user = User::find($id);
     	return view('frontend.profile.change_password',compact('user'));
     }
- 
+
 
     public function UserPasswordUpdate(Request $request){
 
@@ -118,7 +115,7 @@ class IndexController extends Controller
 
 	}// end method
 
- 
+
 
 	public function ProductDetails($id,$slug){
 		$product = Product::findOrFail($id);
@@ -161,15 +158,15 @@ class IndexController extends Controller
 		$breadsubcat = SubCategory::with(['category'])->where('id',$subcat_id)->get();
 
 
-		///  Load More Product with Ajax 
+		///  Load More Product with Ajax
 		if ($request->ajax()) {
    $grid_view = view('frontend.product.grid_view_product',compact('products'))->render();
 
    $list_view = view('frontend.product.list_view_product',compact('products'))->render();
-	return response()->json(['grid_view' => $grid_view,'list_view',$list_view]);	
+	return response()->json(['grid_view' => $grid_view,'list_view',$list_view]);
 
 		}
-		///  End Load More Product with Ajax 
+		///  End Load More Product with Ajax
 
 		return view('frontend.product.subcategory_view',compact('products','categories','breadsubcat'));
 
@@ -205,9 +202,9 @@ class IndexController extends Controller
 
 		));
 
-	} // end method 
+	} // end method
 
- // Product Seach 
+ // Product Seach
 	public function ProductSearch(Request $request){
 
 		$request->validate(["search" => "required"]);
@@ -218,25 +215,24 @@ class IndexController extends Controller
 		$products = Product::where('product_name_en','LIKE',"%$item%")->get();
 		return view('frontend.product.search',compact('products','categories'));
 
-	} // end method 
+	} // end method
 
 
-	///// Advance Search Options 
+	///// Advance Search Options
 
 	public function SearchProduct(Request $request){
 
 		$request->validate(["search" => "required"]);
 
-		$item = $request->search;		 
-        
+		$item = $request->search;
+
 		$products = Product::where('product_name_en','LIKE',"%$item%")->select('product_name_en','product_thambnail','selling_price','id','product_slug_en')->limit(5)->get();
 		return view('frontend.product.search_product',compact('products'));
 
 
 
-	} // end method 
+	} // end method
 
 
 
 }
- 
